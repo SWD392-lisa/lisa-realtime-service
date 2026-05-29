@@ -1,98 +1,76 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Realtime Audio Class (LMS Demo) 🎙️
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Hệ thống Demo phòng học trực tuyến thời gian thực, cho phép người dùng tham gia phòng (Room), giơ tay phát biểu (Raise Hand) và Bật/Tắt Micro để trò chuyện âm thanh (Voice Call) trực tiếp với nhau.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 🛠 Tech Stack
+- **Backend:** NestJS, Socket.IO, Prisma ORM
+- **Database:** PostgreSQL (Triển khai qua Docker)
+- **Audio Service:** Agora Web SDK (RtcTokenBuilder)
+- **Frontend:** Vanilla HTML/CSS/JS (Được Serve Static chung với cổng của Backend)
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 🚀 Hướng dẫn cài đặt từ A - Z (Local Development)
 
-## Project setup
+### 1. Yêu cầu hệ thống (Prerequisites)
+Trước khi chạy dự án, hãy đảm bảo máy tính của bạn đã cài đặt:
+- **Node.js** (phiên bản v18 hoặc mới hơn).
+- **Docker & Docker Compose** (Để chạy nhanh Database PostgreSQL).
+- **Tài khoản Agora** (Lấy `App ID` và `App Certificate` tại trang quản trị Agora.io).
 
+### 2. Khởi động Database (PostgreSQL)
+Mở terminal tại thư mục gốc của dự án, di chuyển vào thư mục `backend` và chạy Docker để khởi tạo Database:
 ```bash
-$ npm install
+cd backend
+docker-compose up -d
+```
+*Lưu ý: Docker-compose sẽ tạo một database tên là `realtime_db` ở cổng `5433` (để tránh xung đột).*
+
+### 3. Cài đặt thư viện & Cấu hình môi trường
+Vẫn ở trong thư mục `backend/`, tiến hành cài đặt các gói NPM:
+```bash
+npm install
 ```
 
-## Compile and run the project
+Tiếp theo, tạo một file `.env` ở thư mục `backend/` với nội dung như sau:
+```env
+# Cấu hình chuỗi kết nối Database
+DATABASE_URL="postgresql://realtime_user:123@127.0.0.1:5433/realtime_db?schema=public"
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+# Thông tin xác thực Agora
+AGORA_APP_ID="NHẬP_APP_ID_CỦA_BẠN_VÀO_ĐÂY"
+AGORA_APP_CERTIFICATE="NHẬP_CERTIFICATE_CỦA_BẠN_VÀO_ĐÂY"
 ```
 
-## Run tests
-
+### 4. Khởi tạo Prisma ORM
+Chạy lệnh sau để đồng bộ bảng dữ liệu vào Postgres và tạo Prisma Client:
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npx prisma db push
+npx prisma generate
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
+### 5. Khởi chạy Ứng dụng
+Chạy Backend (NestJS). NestJS đã được cấu hình nhúng sẵn toàn bộ code Frontend nên bạn chỉ cần chạy đúng 1 lệnh này:
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npm run start:dev
 ```
+Giao diện Web lúc này đã sẵn sàng tại: **[http://localhost:3000](http://localhost:3000)**
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+---
 
-## Resources
+## 📱 Hướng dẫn cấu hình test trên Điện thoại (Bắt buộc)
+> ⚠️ **Quan trọng:** Trình duyệt trên điện thoại di động yêu cầu bắt buộc trang web phải sử dụng giao thức bảo mật `HTTPS://` thì mới cấp quyền sử dụng **Microphone**. Nếu bạn dùng IP mạng LAN (`http://192.168.x.x`), trình duyệt sẽ chặn Mic!
 
-Check out a few resources that may come in handy when working with NestJS:
+Để test được trên điện thoại, bạn cần bắn cổng 3000 ra ngoài internet thông qua công cụ Tunnel (Khuyên dùng `tunnelmole` vì tính ổn định và miễn phí):
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+1. Mở một terminal mới (Vẫn giữ terminal chạy `npm run start:dev`).
+2. Chạy lệnh sau:
+   ```bash
+   npx -y tunnelmole 3000
+   ```
+3. Copy đường link `https://...tunnelmole.net` vừa được sinh ra trên Terminal và gửi qua tin nhắn để mở bằng điện thoại. Bùm! Bạn có thể test Audio thoải mái.
 
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## 🗂 Cấu trúc thư mục
+- `/backend`: Toàn bộ mã nguồn NestJS (Controllers, Gateways Socket.io, Prisma Schema).
+- `/frontend`: File HTML/CSS/JS thuần, dùng Agora Web SDK giao tiếp phía client.
+- `/md`: Chứa các tài liệu ghi chú và báo cáo debug của hệ thống.
