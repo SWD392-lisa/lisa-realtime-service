@@ -23,10 +23,11 @@ exports.AppModule = AppModule = __decorate([
         imports: [
             config_1.ConfigModule.forRoot({ isGlobal: true }),
             serve_static_1.ServeStaticModule.forRoot({
-                rootPath: (0, path_1.join)(process.cwd(), '..', 'frontend'),
+                rootPath: (0, path_1.join)(process.cwd(), 'public'),
+                exclude: ['/api*', '/health'],
             }),
             prisma_module_1.PrismaModule,
-            realtime_module_1.RealtimeModule
+            realtime_module_1.RealtimeModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

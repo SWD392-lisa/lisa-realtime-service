@@ -11,10 +11,11 @@ import { RealtimeModule } from './realtime/realtime.module';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     ServeStaticModule.forRoot({
-      rootPath: join(process.cwd(), '..', 'frontend'),
+      rootPath: join(process.cwd(), 'public'),
+      exclude: ['/api*', '/health'],
     }),
-    PrismaModule, 
-    RealtimeModule
+    PrismaModule,
+    RealtimeModule,
   ],
   controllers: [AppController],
   providers: [AppService],

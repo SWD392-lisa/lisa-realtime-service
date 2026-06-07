@@ -4,7 +4,7 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
   engineType = "library"
 }
 
@@ -12,33 +12,55 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  role      String   @default("user") // "user", "mentor", "super"
-  createdAt DateTime @default(now())
-  sessions  Session[]
+enum RoomStatus {
+  WAITING
+  LIVE
+  ENDED
+}
+
+enum RoomParticipantRole {
+  LEARNER
+  MENTOR
+  HOST
 }
 
 model Room {
-  id          String   @id @default(uuid())
-  name        String
-  description String?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  sessions    Session[]
+  id               String            @id @default(uuid())
+  name             String
+  description      String?
+  level            String?
+  status           RoomStatus        @default(WAITING)
+  agoraChannelName String            @unique
+  hostUserId       String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  participants     RoomParticipant[]
+
+  @@index([status])
+  @@index([hostUserId])
 }
 
-model Session {
-  id          String   @id @default(uuid())
-  roomId      String
-  userId      String
-  joinedAt    DateTime @default(now())
-  leftAt      DateTime?
-  isMicOn     Boolean  @default(false)
-  isRaisingHand Boolean @default(false)
-  
-  room        Room     @relation(fields: [roomId], references: [id])
-  user        User     @relation(fields: [userId], references: [id])
+model RoomParticipant {
+  id             String              @id @default(uuid())
+  roomId         String
+  userId         String
+  displayName    String?
+  avatarPersona  String?
+  role           RoomParticipantRole @default(LEARNER)
+  rawRole        String?
+  isAnonymous    Boolean             @default(true)
+  isMicOn        Boolean             @default(false)
+  isVideoEnabled Boolean             @default(false)
+  isHandRaised   Boolean             @default(false)
+  isSpeaker      Boolean             @default(false)
+  agoraUid       String
+  joinedAt       DateTime            @default(now())
+  leftAt         DateTime?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@index([roomId, leftAt])
+  @@index([roomId, userId])
 }

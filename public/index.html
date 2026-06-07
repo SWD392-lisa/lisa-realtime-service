@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LUCY Audio Room</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <section class="lobby" id="lobbyView">
+        <div class="brand">
+          <span class="mark">L</span>
+          <div>
+            <h1>LUCY Audio Room</h1>
+            <p>Practice room for language learners and mentors</p>
+          </div>
+        </div>
+
+        <div class="lobby-grid">
+          <section class="join-card">
+            <div class="section-title">
+              <span>Join as</span>
+              <strong id="connectionState">Offline</strong>
+            </div>
+
+            <div class="notice hidden" id="lobbyNotice"></div>
+
+            <div class="status-card">
+              <div class="status-row">
+                <span>Auth mode</span>
+                <strong id="authModeValue">Dev</strong>
+              </div>
+              <div class="status-row">
+                <span>Server user</span>
+                <strong id="serverUserValue">Not connected</strong>
+              </div>
+              <div class="status-row">
+                <span>Server role</span>
+                <strong id="serverRoleValue">-</strong>
+              </div>
+              <div class="status-row">
+                <span>User ID</span>
+                <strong id="serverUserIdValue">-</strong>
+              </div>
+              <div class="status-row">
+                <span>Room state</span>
+                <strong id="roomStateValue">Not joined</strong>
+              </div>
+            </div>
+
+            <div class="identity-grid">
+              <label>
+                Name
+                <input id="devNameInput" type="text" value="Demo Mentor" />
+              </label>
+              <label>
+                Role
+                <select id="devRoleInput">
+                  <option value="LUCY">Learner</option>
+                  <option value="LUCY_PRO" selected>Mentor</option>
+                  <option value="LUCY_SUPER">Creator</option>
+                </select>
+              </label>
+            </div>
+
+            <label>
+              Dev user ID
+              <input id="devUserIdInput" type="text" value="dev-mentor-1" />
+            </label>
+
+            <label>
+              Access token
+              <textarea
+                id="tokenInput"
+                placeholder="Optional until login is connected"
+                spellcheck="false"
+              ></textarea>
+            </label>
+
+            <div class="actions">
+              <button id="saveTokenButton" type="button">Save Token</button>
+              <button id="connectButton" type="button">Connect</button>
+            </div>
+          </section>
+
+          <section class="join-card room-picker">
+            <div class="section-title">
+              <span>Rooms</span>
+              <button id="refreshRoomsButton" type="button">Refresh</button>
+            </div>
+
+            <div class="create-row">
+              <input
+                id="roomNameInput"
+                type="text"
+                placeholder="New room name"
+              />
+              <input id="roomLevelInput" type="text" placeholder="Level" />
+              <button id="createRoomButton" type="button">Create</button>
+            </div>
+
+            <label>
+              Room ID
+              <input
+                id="roomIdInput"
+                type="text"
+                placeholder="Select or paste roomId"
+              />
+            </label>
+
+            <div class="actions primary-actions">
+              <button id="joinButton" class="primary" type="button">
+                Join Room
+              </button>
+              <button id="leaveButton" type="button">Leave</button>
+            </div>
+
+            <div class="room-list" id="roomList"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="meeting hidden" id="meetingView">
+        <header class="meeting-header">
+          <div>
+            <span class="eyebrow">Current room</span>
+            <h2 id="currentRoomLabel">None</h2>
+          </div>
+          <div class="status-pill" id="meetingStatus">Connected</div>
+        </header>
+
+        <div class="notice hidden" id="meetingNotice"></div>
+
+        <section class="stage">
+          <div class="speaker-card" id="speakerCard">
+            <div class="avatar large" id="speakerAvatar">L</div>
+            <h3 id="speakerName">Waiting for participants</h3>
+            <p id="speakerMeta">Join a room to start the session</p>
+          </div>
+        </section>
+
+        <section class="participants-panel">
+          <div class="panel-title">
+            <span>Participants</span>
+            <strong id="participantCount">0</strong>
+          </div>
+          <div class="participants" id="participantList"></div>
+        </section>
+
+        <footer class="control-bar">
+          <button id="raiseHandButton" type="button">Raise Hand</button>
+          <button id="lowerHandButton" type="button">Lower Hand</button>
+          <button id="muteButton" type="button">Mute</button>
+          <button id="unmuteButton" type="button">Unmute</button>
+          <button id="endRoomButton" class="danger" type="button">
+            End Room
+          </button>
+        </footer>
+
+        <details class="debug">
+          <summary>Realtime events</summary>
+          <div class="debug-head">
+            <button id="clearLogButton" type="button">Clear</button>
+          </div>
+          <pre id="eventLog"></pre>
+        </details>
+      </section>
+    </main>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/app.js"></script>
+  </body>
+</html>

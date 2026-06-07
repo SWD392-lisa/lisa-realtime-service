@@ -14,31 +14,24 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AgoraController = void 0;
 const common_1 = require("@nestjs/common");
-const agora_token_1 = require("agora-token");
+const agora_service_1 = require("./agora.service");
 let AgoraController = class AgoraController {
+    agoraService;
+    constructor(agoraService) {
+        this.agoraService = agoraService;
+    }
     getToken(channelName, uid, roleStr) {
         if (!channelName) {
-            throw new common_1.HttpException('channelName is required', common_1.HttpStatus.BAD_REQUEST);
+            throw new common_1.BadRequestException('channelName is required');
         }
-        const appId = process.env.AGORA_APP_ID;
-        const appCertificate = process.env.AGORA_APP_CERTIFICATE;
-        if (!appId || !appCertificate) {
-            throw new common_1.HttpException('Agora credentials are not configured', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+        if (roleStr && !['publisher', 'subscriber'].includes(roleStr)) {
+            throw new common_1.BadRequestException('role must be publisher or subscriber');
         }
-        let role = agora_token_1.RtcRole.PUBLISHER;
-        if (roleStr === 'subscriber') {
-            role = agora_token_1.RtcRole.SUBSCRIBER;
-        }
-        const expirationTimeInSeconds = 3600;
-        const currentTimestamp = Math.floor(Date.now() / 1000);
-        const privilegeExpiredTs = currentTimestamp + expirationTimeInSeconds;
-        const token = agora_token_1.RtcTokenBuilder.buildTokenWithUserAccount(appId, appCertificate, channelName, uid || '0', role, expirationTimeInSeconds, privilegeExpiredTs);
-        return {
-            token,
+        return this.agoraService.createRtcToken({
             channelName,
             uid: uid || '0',
-            appId,
-        };
+            role: roleStr === 'publisher' ? 'publisher' : 'subscriber',
+        });
     }
 };
 exports.AgoraController = AgoraController;
@@ -52,6 +45,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AgoraController.prototype, "getToken", null);
 exports.AgoraController = AgoraController = __decorate([
-    (0, common_1.Controller)('api/agora')
+    (0, common_1.Controller)('api/agora'),
+    __metadata("design:paramtypes", [agora_service_1.AgoraService])
 ], AgoraController);
 //# sourceMappingURL=agora.controller.js.map

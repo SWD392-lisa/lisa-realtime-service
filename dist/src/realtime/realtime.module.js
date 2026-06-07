@@ -8,15 +8,20 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RealtimeModule = void 0;
 const common_1 = require("@nestjs/common");
-const room_gateway_1 = require("./room/room.gateway");
+const auth_module_1 = require("../auth/auth.module");
 const agora_controller_1 = require("./agora/agora.controller");
+const agora_service_1 = require("./agora/agora.service");
+const room_controller_1 = require("./room/room.controller");
+const room_gateway_1 = require("./room/room.gateway");
+const room_service_1 = require("./room/room.service");
 let RealtimeModule = class RealtimeModule {
 };
 exports.RealtimeModule = RealtimeModule;
 exports.RealtimeModule = RealtimeModule = __decorate([
     (0, common_1.Module)({
-        providers: [room_gateway_1.RoomGateway],
-        controllers: [agora_controller_1.AgoraController]
+        imports: [auth_module_1.AuthModule],
+        providers: [agora_service_1.AgoraService, room_gateway_1.RoomGateway, room_service_1.RoomService],
+        controllers: [agora_controller_1.AgoraController, room_controller_1.RoomController],
     })
 ], RealtimeModule);
 //# sourceMappingURL=realtime.module.js.map

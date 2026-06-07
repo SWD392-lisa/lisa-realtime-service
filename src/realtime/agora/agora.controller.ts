@@ -1,8 +1,10 @@
-import { Controller, Get, Query, HttpException, HttpStatus } from '@nestjs/common';
-import { RtcTokenBuilder, RtcRole } from 'agora-token';
+import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
+import { AgoraService } from './agora.service';
 
 @Controller('api/agora')
 export class AgoraController {
+  constructor(private readonly agoraService: AgoraService) {}
+
   @Get('token')
   getToken(
     @Query('channelName') channelName: string,
@@ -10,40 +12,17 @@ export class AgoraController {
     @Query('role') roleStr?: string,
   ) {
     if (!channelName) {
-      throw new HttpException('channelName is required', HttpStatus.BAD_REQUEST);
+      throw new BadRequestException('channelName is required');
     }
 
-    const appId = process.env.AGORA_APP_ID;
-    const appCertificate = process.env.AGORA_APP_CERTIFICATE;
-
-    if (!appId || !appCertificate) {
-      throw new HttpException('Agora credentials are not configured', HttpStatus.INTERNAL_SERVER_ERROR);
+    if (roleStr && !['publisher', 'subscriber'].includes(roleStr)) {
+      throw new BadRequestException('role must be publisher or subscriber');
     }
 
-    let role = RtcRole.PUBLISHER;
-    if (roleStr === 'subscriber') {
-      role = RtcRole.SUBSCRIBER;
-    }
-
-    const expirationTimeInSeconds = 3600;
-    const currentTimestamp = Math.floor(Date.now() / 1000);
-    const privilegeExpiredTs = currentTimestamp + expirationTimeInSeconds;
-
-    const token = RtcTokenBuilder.buildTokenWithUserAccount(
-      appId,
-      appCertificate,
-      channelName,
-      uid || '0',
-      role,
-      expirationTimeInSeconds,
-      privilegeExpiredTs
-    );
-
-    return {
-      token,
+    return this.agoraService.createRtcToken({
       channelName,
       uid: uid || '0',
-      appId, // Return appId to the client so they can use it
-    };
+      role: roleStr === 'publisher' ? 'publisher' : 'subscriber',
+    });
   }
 }
