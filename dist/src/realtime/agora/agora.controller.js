@@ -14,38 +14,30 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AgoraController = void 0;
 const common_1 = require("@nestjs/common");
-const agora_service_1 = require("./agora.service");
+const current_user_decorator_1 = require("../../auth/current-user.decorator");
+const jwt_auth_guard_1 = require("../../auth/jwt-auth.guard");
+const agora_token_service_1 = require("./agora-token.service");
 let AgoraController = class AgoraController {
-    agoraService;
-    constructor(agoraService) {
-        this.agoraService = agoraService;
+    agoraTokenService;
+    constructor(agoraTokenService) {
+        this.agoraTokenService = agoraTokenService;
     }
-    getToken(channelName, uid, roleStr) {
-        if (!channelName) {
-            throw new common_1.BadRequestException('channelName is required');
-        }
-        if (roleStr && !['publisher', 'subscriber'].includes(roleStr)) {
-            throw new common_1.BadRequestException('role must be publisher or subscriber');
-        }
-        return this.agoraService.createRtcToken({
-            channelName,
-            uid: uid || '0',
-            role: roleStr === 'publisher' ? 'publisher' : 'subscriber',
-        });
+    createToken(payload, user) {
+        return this.agoraTokenService.createToken(payload, user);
     }
 };
 exports.AgoraController = AgoraController;
 __decorate([
-    (0, common_1.Get)('token'),
-    __param(0, (0, common_1.Query)('channelName')),
-    __param(1, (0, common_1.Query)('uid')),
-    __param(2, (0, common_1.Query)('role')),
+    (0, common_1.Post)('token'),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", void 0)
-], AgoraController.prototype, "getToken", null);
+], AgoraController.prototype, "createToken", null);
 exports.AgoraController = AgoraController = __decorate([
     (0, common_1.Controller)('api/agora'),
-    __metadata("design:paramtypes", [agora_service_1.AgoraService])
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __metadata("design:paramtypes", [agora_token_service_1.AgoraTokenService])
 ], AgoraController);
 //# sourceMappingURL=agora.controller.js.map

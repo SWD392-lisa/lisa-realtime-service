@@ -1,14 +1,26 @@
 import { Module } from '@nestjs/common';
+import { AccessControlService } from '../access-control/access-control.service';
 import { AuthModule } from '../auth/auth.module';
-import { AgoraController } from './agora/agora.controller';
-import { AgoraService } from './agora/agora.service';
-import { RoomController } from './room/room.controller';
-import { RoomGateway } from './room/room.gateway';
-import { RoomService } from './room/room.service';
+import { AgoraRecordingService } from './agora/agora-recording.service';
+import { CloudflareStreamService } from './cloudflare/cloudflare-stream.service';
+import { RecordingController } from './recording/recording.controller';
+import { RecordingService } from './recording/recording.service';
+import { SessionGateway } from './session/session.gateway';
+import { SessionPersistenceService } from './session/session-persistence.service';
+import { SessionStoreService } from './session/session-store.service';
 
 @Module({
   imports: [AuthModule],
-  providers: [AgoraService, RoomGateway, RoomService],
-  controllers: [AgoraController, RoomController],
+  providers: [
+    AccessControlService,
+    AgoraRecordingService,
+    CloudflareStreamService,
+    RecordingService,
+    SessionGateway,
+    SessionPersistenceService,
+    SessionStoreService,
+  ],
+  controllers: [RecordingController],
+  exports: [AccessControlService, SessionPersistenceService, SessionStoreService],
 })
 export class RealtimeModule {}

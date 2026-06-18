@@ -93,7 +93,10 @@ export class AuthService {
   }
 
   isDevAuthEnabled(): boolean {
-    return this.config.get<string>('REALTIME_DEV_AUTH') === 'true';
+    return (
+      this.config.get<string>('AUTH_MODE') === 'mock' ||
+      this.config.get<string>('REALTIME_DEV_AUTH') === 'true'
+    );
   }
 
   createDevUser(input: {

@@ -1,76 +1,254 @@
-# Realtime Audio Class (LMS Demo) 🎙️
+# LUCY Realtime Service
 
-Hệ thống Demo phòng học trực tuyến thời gian thực, cho phép người dùng tham gia phòng (Room), giơ tay phát biểu (Raise Hand) và Bật/Tắt Micro để trò chuyện âm thanh (Voice Call) trực tiếp với nhau.
+`lucy-realtime-service` la microservice realtime cua du an LUCY.
 
-## 🛠 Tech Stack
-- **Backend:** NestJS, Socket.IO, Prisma ORM
-- **Database:** PostgreSQL (Triển khai qua Docker)
-- **Audio Service:** Agora Web SDK (RtcTokenBuilder)
-- **Frontend:** Vanilla HTML/CSS/JS (Được Serve Static chung với cổng của Backend)
+## Phase Status
 
----
+- Phase 1: da xong
+- Phase 2: da xong
+- Phase 3: da xong
+- Phase 4: da xong
+- Phase 5: da xong
+- Phase 6: da xong
+- Phase 7: da xong
+- Phase 8: da xong
 
-## 🚀 Hướng dẫn cài đặt từ A - Z (Local Development)
+Da co trong repo hien tai:
 
-### 1. Yêu cầu hệ thống (Prerequisites)
-Trước khi chạy dự án, hãy đảm bảo máy tính của bạn đã cài đặt:
-- **Node.js** (phiên bản v18 hoặc mới hơn).
-- **Docker & Docker Compose** (Để chạy nhanh Database PostgreSQL).
-- **Tài khoản Agora** (Lấy `App ID` và `App Certificate` tại trang quản trị Agora.io).
+- NestJS backend
+- Socket.IO realtime workflow
+- PostgreSQL local qua Docker Compose
+- Prisma schema + migrations
+- In-memory hot session state ket hop voi persistence cho room/session/recording metadata
+- Mock `AccessControlService`
+- Agora token endpoint
+- Agora Web SDK demo integration cho camera, microphone, va screen share
+- Recording API mock voi database metadata that
+- Agora Cloud Recording REST integration
+- Cloudflare Stream private playback voi signed URLs
+- Classroom demo layout va recorder route on dinh cho webpage recording
+- React + Vite web demo client
 
-### 2. Khởi động Database (PostgreSQL)
-Mở terminal tại thư mục gốc của dự án, di chuyển vào thư mục `backend` và chạy Docker để khởi tạo Database:
-```bash
-cd backend
-docker-compose up -d
-```
-*Lưu ý: Docker-compose sẽ tạo một database tên là `realtime_db` ở cổng `5433` (để tránh xung đột).*
+Chua lam:
 
-### 3. Cài đặt thư viện & Cấu hình môi trường
-Vẫn ở trong thư mục `backend/`, tiến hành cài đặt các gói NPM:
+- Cloudflare Stream that
+- Redis
+- Tich hop `.NET User & Payment Service` that
+- Tich hop `Java LMS Service` that
+
+## Scope
+
+Realtime Service phu trach:
+
+- Room metadata
+- Live session metadata
+- Session participants
+- Hand raise requests
+- Recording metadata
+- Recording access logs
+- Socket.IO realtime coordination
+
+Khong duoc dua vao service nay:
+
+- `users`
+- passwords
+- wallets
+- real `levels`
+- real `sub_levels`
+
+Chi luu external references neu can:
+
+- `anonymousUserId`
+- `externalCourseId`
+- `externalLevelId`
+- `externalSubLevelId`
+
+## Install
+
+Backend:
+
 ```bash
 npm install
 ```
 
-Tiếp theo, tạo một file `.env` ở thư mục `backend/` với nội dung như sau:
-```env
-# Cấu hình chuỗi kết nối Database
-DATABASE_URL="postgresql://realtime_user:123@127.0.0.1:5433/realtime_db?schema=public"
+Web demo client:
 
-# Thông tin xác thực Agora
-AGORA_APP_ID="NHẬP_APP_ID_CỦA_BẠN_VÀO_ĐÂY"
-AGORA_APP_CERTIFICATE="NHẬP_CERTIFICATE_CỦA_BẠN_VÀO_ĐÂY"
-```
-
-### 4. Khởi tạo Prisma ORM
-Chạy lệnh sau để đồng bộ bảng dữ liệu vào Postgres và tạo Prisma Client:
 ```bash
-npx prisma db push
-npx prisma generate
+cd web-client
+npm install
 ```
 
-### 5. Khởi chạy Ứng dụng
-Chạy Backend (NestJS). NestJS đã được cấu hình nhúng sẵn toàn bộ code Frontend nên bạn chỉ cần chạy đúng 1 lệnh này:
+Web demo env:
+
+```bash
+cp web-client/.env.example web-client/.env
+```
+
+## Run Local Database
+
+```bash
+docker compose up -d
+```
+
+## Run Prisma Migration
+
+```bash
+npx prisma migrate dev --name phase2_phase3_realtime_db
+```
+
+## Run Backend
+
 ```bash
 npm run start:dev
 ```
-Giao diện Web lúc này đã sẵn sàng tại: **[http://localhost:3000](http://localhost:3000)**
 
----
+Backend mac dinh chay tai:
 
-## 📱 Hướng dẫn cấu hình test trên Điện thoại (Bắt buộc)
-> ⚠️ **Quan trọng:** Trình duyệt trên điện thoại di động yêu cầu bắt buộc trang web phải sử dụng giao thức bảo mật `HTTPS://` thì mới cấp quyền sử dụng **Microphone**. Nếu bạn dùng IP mạng LAN (`http://192.168.x.x`), trình duyệt sẽ chặn Mic!
+```bash
+http://localhost:3000
+```
 
-Để test được trên điện thoại, bạn cần bắn cổng 3000 ra ngoài internet thông qua công cụ Tunnel (Khuyên dùng `tunnelmole` vì tính ổn định và miễn phí):
+## Run Web Client
 
-1. Mở một terminal mới (Vẫn giữ terminal chạy `npm run start:dev`).
-2. Chạy lệnh sau:
-   ```bash
-   npx -y tunnelmole 3000
-   ```
-3. Copy đường link `https://...tunnelmole.net` vừa được sinh ra trên Terminal và gửi qua tin nhắn để mở bằng điện thoại. Bùm! Bạn có thể test Audio thoải mái.
+```bash
+cd web-client
+npm run dev
+```
 
-## 🗂 Cấu trúc thư mục
-- `/backend`: Toàn bộ mã nguồn NestJS (Controllers, Gateways Socket.io, Prisma Schema).
-- `/frontend`: File HTML/CSS/JS thuần, dùng Agora Web SDK giao tiếp phía client.
-- `/md`: Chứa các tài liệu ghi chú và báo cáo debug của hệ thống.
+Web client mac dinh chay tai:
+
+```bash
+http://localhost:5173
+```
+
+## Test Flow
+
+Mo 3 tab web client va su dung cung `sessionId`, vi du `session-alpha`.
+
+Tab 1:
+
+- `anonymousUserId`: `SUPER-001`
+- `displayName`: `Super Demo`
+- `role`: `SUPER`
+
+Tab 2:
+
+- `anonymousUserId`: `HOST-001`
+- `displayName`: `Host Demo`
+- `role`: `HOST`
+
+Tab 3:
+
+- `anonymousUserId`: `STUDENT-001`
+- `displayName`: `Student Demo`
+- `role`: `STUDENT`
+
+Test:
+
+- Ca 3 tab `Join Session`
+- Neu backend da cau hinh Agora env, client tu dong join Agora channel
+- `STUDENT-001` bam `Raise Hand`
+- `HOST-001` hoac `SUPER-001` bam `Approve`
+- Thu `Enable Mic`
+- Thu `Enable Camera`
+- Thu `Share Screen`
+- Thu `Stop Screen`
+- Chi `SUPER-001` duoc `Start Recording`
+- Chi `SUPER-001` duoc `Stop Recording`
+- `STUDENT-001` truoc khi duoc approve se chi join Agora voi audience token
+- Sau khi duoc approve, `STUDENT-001` moi publish duoc mic/camera/screen
+- `STUDENT-001` bam `Playback` tren recording da `READY` se duoc phep
+- `STUDENT-002` bam `Playback` se bi denied va event log hien ly do
+- Layout classroom demo hien top bar, main stage, side panel, participant strip, bottom control bar
+
+## Agora Env
+
+Them vao `.env`:
+
+```bash
+AGORA_APP_ID=your_app_id
+AGORA_APP_CERTIFICATE=your_app_certificate
+AGORA_TOKEN_EXPIRE_SECONDS=3600
+AGORA_REST_CUSTOMER_ID=your_customer_id
+AGORA_REST_CUSTOMER_SECRET=your_customer_secret
+AGORA_RECORDING_UID=9999
+AGORA_RECORDING_MODE=composite
+AGORA_RECORDING_STORAGE_VENDOR=
+AGORA_RECORDING_STORAGE_CONFIG=
+WEB_CLIENT_BASE_URL=http://localhost:5173
+CLOUDFLARE_ACCOUNT_ID=
+CLOUDFLARE_API_TOKEN=
+CLOUDFLARE_STREAM_SIGNING_KEY=
+CLOUDFLARE_STREAM_SIGNING_KEY_ID=
+CLOUDFLARE_STREAM_CUSTOMER_CODE=
+```
+
+## Agora Cloud Recording
+
+- Neu `AGORA_REST_CUSTOMER_ID`, `AGORA_REST_CUSTOMER_SECRET`, `AGORA_RECORDING_UID`, `AGORA_RECORDING_MODE` chua du:
+  - API start recording se tra `AGORA_NOT_CONFIGURED`
+  - He thong khong crash, nhung cung khong fallback am tham
+
+- Neu muon test that:
+  1. Dien du env Agora REST
+  2. Start backend
+  3. Join session bang `SUPER-001`
+  4. Bam `Start Recording`
+  5. Bam `Stop Recording`
+6. Kiem tra `recordings.agoraResourceId`, `recordings.agoraSid`, `providerMetadata`
+
+- Route webpage recording demo:
+  - `http://localhost:5173/recorder/session/session-alpha`
+  - Route nay la read-only layout cho webpage recorder
+
+## Cloudflare Stream Playback
+
+- Backend khong expose Cloudflare API token ra frontend
+- Playback URL chi duoc cap sau khi `AccessControlService` cho phep
+- Neu thieu Cloudflare env:
+  - API playback tra `CLOUDFLARE_STREAM_NOT_CONFIGURED`
+  - App khong crash
+
+Demo:
+
+1. Tao hoac chon recording `READY`
+2. Neu chua co `cloudflareVideoUid`, dung `SUPER-001` bam `Attach Video UID`
+3. Bam `Playback`
+4. `STUDENT-001` duoc xem
+5. `STUDENT-002` bi denied
+
+## Recorder Layout Demo
+
+1. Mo web demo thuong:
+   - `http://localhost:5173`
+2. Join session bang `SUPER-001`, `HOST-001`, `STUDENT-001`
+3. Thu bat camera va screen share de thay main stage tu doi uu tien
+4. Mo route recorder:
+   - `http://localhost:5173/recorder/session/session-alpha`
+5. Xac nhan recorder route:
+   - khong co control buttons
+   - co main stage
+   - co participant strip
+   - co session title va recorder watermark
+
+## Recording Demo
+
+1. Join session bang `SUPER-001`
+2. Bam `Start Recording`
+3. Bam `Stop Recording`
+4. Kiem tra danh sach recordings hien item `READY`
+5. Voi `STUDENT-001`, bam `Playback` va xem event log `recordings.playback.allowed`
+6. Voi `STUDENT-002`, bam `Playback` va xem event log `recordings.playback.denied`
+
+## Docs
+
+- [AGENTS.md](./AGENTS.md)
+- [docs/ARCHITECTURE_OVERVIEW.md](./docs/ARCHITECTURE_OVERVIEW.md)
+- [docs/PHASE_ROADMAP.md](./docs/PHASE_ROADMAP.md)
+- [docs/SOCKET_EVENTS.md](./docs/SOCKET_EVENTS.md)
+- [docs/ACCESS_CONTROL.md](./docs/ACCESS_CONTROL.md)
+- [docs/FRONTEND_INTEGRATION.md](./docs/FRONTEND_INTEGRATION.md)
+- [docs/RECORDING_API.md](./docs/RECORDING_API.md)
+- [docs/AGORA_RECORDING_MODES.md](./docs/AGORA_RECORDING_MODES.md)
+- [docs/CLOUDFLARE_STREAM.md](./docs/CLOUDFLARE_STREAM.md)
+- [docs/RECORDER_LAYOUT.md](./docs/RECORDER_LAYOUT.md)

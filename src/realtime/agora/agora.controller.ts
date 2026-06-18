@@ -1,28 +1,20 @@
-import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
-import { AgoraService } from './agora.service';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { CurrentUser } from '../../auth/current-user.decorator';
+import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
+import type { AuthUser } from '../../auth/auth.types';
+import { AgoraTokenService } from './agora-token.service';
+import type { AgoraTokenRequest } from './agora.types';
 
 @Controller('api/agora')
+@UseGuards(JwtAuthGuard)
 export class AgoraController {
-  constructor(private readonly agoraService: AgoraService) {}
+  constructor(private readonly agoraTokenService: AgoraTokenService) {}
 
-  @Get('token')
-  getToken(
-    @Query('channelName') channelName: string,
-    @Query('uid') uid: string,
-    @Query('role') roleStr?: string,
+  @Post('token')
+  createToken(
+    @Body() payload: AgoraTokenRequest,
+    @CurrentUser() user: AuthUser,
   ) {
-    if (!channelName) {
-      throw new BadRequestException('channelName is required');
-    }
-
-    if (roleStr && !['publisher', 'subscriber'].includes(roleStr)) {
-      throw new BadRequestException('role must be publisher or subscriber');
-    }
-
-    return this.agoraService.createRtcToken({
-      channelName,
-      uid: uid || '0',
-      role: roleStr === 'publisher' ? 'publisher' : 'subscriber',
-    });
+    return this.agoraTokenService.createToken(payload, user);
   }
 }

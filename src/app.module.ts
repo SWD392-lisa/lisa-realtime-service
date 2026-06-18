@@ -1,21 +1,19 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { AgoraModule } from './realtime/agora/agora.module';
 import { RealtimeModule } from './realtime/realtime.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    ServeStaticModule.forRoot({
-      rootPath: join(process.cwd(), 'public'),
-      exclude: ['/api*', '/health'],
-    }),
+    AuthModule,
     PrismaModule,
     RealtimeModule,
+    AgoraModule,
   ],
   controllers: [AppController],
   providers: [AppService],

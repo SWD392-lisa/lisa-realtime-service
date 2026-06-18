@@ -73,7 +73,8 @@ let AuthService = class AuthService {
         return token;
     }
     isDevAuthEnabled() {
-        return this.config.get('REALTIME_DEV_AUTH') === 'true';
+        return (this.config.get('AUTH_MODE') === 'mock' ||
+            this.config.get('REALTIME_DEV_AUTH') === 'true');
     }
     createDevUser(input) {
         if (!this.isDevAuthEnabled()) {
