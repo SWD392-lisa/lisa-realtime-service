@@ -9,11 +9,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
-const serve_static_1 = require("@nestjs/serve-static");
-const path_1 = require("path");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
+const auth_module_1 = require("./auth/auth.module");
 const prisma_module_1 = require("./prisma/prisma.module");
+const agora_module_1 = require("./realtime/agora/agora.module");
 const realtime_module_1 = require("./realtime/realtime.module");
 let AppModule = class AppModule {
 };
@@ -22,12 +22,10 @@ exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
             config_1.ConfigModule.forRoot({ isGlobal: true }),
-            serve_static_1.ServeStaticModule.forRoot({
-                rootPath: (0, path_1.join)(process.cwd(), 'public'),
-                exclude: ['/api*', '/health'],
-            }),
+            auth_module_1.AuthModule,
             prisma_module_1.PrismaModule,
             realtime_module_1.RealtimeModule,
+            agora_module_1.AgoraModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

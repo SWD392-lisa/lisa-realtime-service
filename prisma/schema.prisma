@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider   = "prisma-client-js"
   engineType = "library"
@@ -13,54 +8,167 @@ datasource db {
 }
 
 enum RoomStatus {
-  WAITING
-  LIVE
-  ENDED
+  OPEN
+  CLOSED
 }
 
-enum RoomParticipantRole {
-  LEARNER
-  MENTOR
+enum LiveSessionStatus {
+  SCHEDULED
+  LIVE
+  ENDED
+  CANCELLED
+}
+
+enum RoleInSession {
+  SUPER
   HOST
+  STUDENT
+}
+
+enum HandRaiseRequestStatus {
+  WAITING
+  APPROVED
+  REJECTED
+  CANCELLED
+  FINISHED
+}
+
+enum RecordingProvider {
+  MOCK
+  AGORA_CLOUD_RECORDING
+  CLOUDFLARE_STREAM
+}
+
+enum RecordingStatus {
+  REQUESTED
+  RECORDING
+  PROCESSING
+  READY
+  FAILED
+  DELETED
+}
+
+enum RecordingAccessAction {
+  VIEW
+  DOWNLOAD
+  DENIED
+}
+
+enum AccessResult {
+  ALLOWED
+  DENIED
 }
 
 model Room {
-  id               String            @id @default(uuid())
-  name             String
-  description      String?
-  level            String?
-  status           RoomStatus        @default(WAITING)
-  agoraChannelName String            @unique
-  hostUserId       String?
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  participants     RoomParticipant[]
+  roomId             String        @id
+  title              String
+  hostAnonymousId    String
+  externalCourseId   String?
+  externalLevelId    String?
+  externalSubLevelId String?
+  defaultChannelName String
+  status             RoomStatus    @default(OPEN)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  liveSessions       LiveSession[]
+  recordings         Recording[]
 
+  @@index([hostAnonymousId])
   @@index([status])
-  @@index([hostUserId])
+  @@map("rooms")
 }
 
-model RoomParticipant {
-  id             String              @id @default(uuid())
-  roomId         String
-  userId         String
-  displayName    String?
-  avatarPersona  String?
-  role           RoomParticipantRole @default(LEARNER)
-  rawRole        String?
-  isAnonymous    Boolean             @default(true)
-  isMicOn        Boolean             @default(false)
-  isVideoEnabled Boolean             @default(false)
-  isHandRaised   Boolean             @default(false)
-  isSpeaker      Boolean             @default(false)
-  agoraUid       String
-  joinedAt       DateTime            @default(now())
-  leftAt         DateTime?
-  createdAt      DateTime            @default(now())
-  updatedAt      DateTime            @updatedAt
+model LiveSession {
+  sessionId         String               @id
+  roomId            String
+  channelName       String
+  status            LiveSessionStatus    @default(SCHEDULED)
+  startedAt         DateTime
+  endedAt           DateTime?
+  peakParticipants  Int                  @default(0)
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  room              Room                 @relation(fields: [roomId], references: [roomId], onDelete: Cascade)
+  participants      SessionParticipant[]
+  handRaiseRequests HandRaiseRequest[]
+  recordings        Recording[]
 
-  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  @@index([roomId])
+  @@index([status])
+  @@map("live_sessions")
+}
 
-  @@index([roomId, leftAt])
-  @@index([roomId, userId])
+model SessionParticipant {
+  participantId        String        @id @default(cuid())
+  sessionId            String
+  anonymousUserId      String
+  displayName          String
+  roleInSession        RoleInSession
+  joinedAt             DateTime      @default(now())
+  leftAt               DateTime?
+  totalSpeakingSeconds Int           @default(0)
+  session              LiveSession   @relation(fields: [sessionId], references: [sessionId], onDelete: Cascade)
+
+  @@unique([sessionId, anonymousUserId])
+  @@index([sessionId, leftAt])
+  @@map("session_participants")
+}
+
+model HandRaiseRequest {
+  requestId       String                 @id @default(cuid())
+  sessionId       String
+  anonymousUserId String
+  status          HandRaiseRequestStatus @default(WAITING)
+  requestedAt     DateTime               @default(now())
+  handledAt       DateTime?
+  handledBy       String?
+  session         LiveSession            @relation(fields: [sessionId], references: [sessionId], onDelete: Cascade)
+
+  @@index([sessionId, status])
+  @@index([anonymousUserId])
+  @@map("hand_raise_requests")
+}
+
+model Recording {
+  recordingId        String               @id @default(cuid())
+  sessionId          String
+  roomId             String
+  createdBySuperId   String
+  externalCourseId   String?
+  externalLevelId    String?
+  externalSubLevelId String?
+  provider           RecordingProvider    @default(MOCK)
+  agoraResourceId    String?
+  agoraSid           String?
+  cloudflareVideoUid String?
+  providerMetadata   Json?
+  status             RecordingStatus      @default(REQUESTED)
+  title              String?
+  startedAt          DateTime
+  endedAt            DateTime?
+  durationSeconds    Int?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  session            LiveSession          @relation(fields: [sessionId], references: [sessionId], onDelete: Cascade)
+  room               Room                 @relation(fields: [roomId], references: [roomId], onDelete: Cascade)
+  accessLogs         RecordingAccessLog[]
+
+  @@index([sessionId, status])
+  @@index([roomId])
+  @@map("recordings")
+}
+
+model RecordingAccessLog {
+  accessLogId     String                @id @default(cuid())
+  recordingId     String
+  anonymousUserId String
+  action          RecordingAccessAction
+  result          AccessResult
+  reason          String
+  createdAt       DateTime              @default(now())
+  recording       Recording             @relation(fields: [recordingId], references: [recordingId], onDelete: Cascade)
+
+  @@index([recordingId])
+  @@index([anonymousUserId])
+  @@map("recording_access_logs")
 }

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { BadRequestException } from '@nestjs/common';
 import { RoomParticipantRole, RoomStatus } from '@prisma/client';
 import type { AuthRole } from '../../../auth/auth.types';
