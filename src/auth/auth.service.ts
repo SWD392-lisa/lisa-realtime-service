@@ -126,15 +126,16 @@ export class AuthService {
   normalizeRole(rawRole: string): AuthRole {
     const role = rawRole.trim().toUpperCase();
 
-    if (['LUCY', 'USER', 'STUDENT'].includes(role)) {
+    // User Service currently emits numeric RoleId values in JWTs.
+    if (['1', 'LUCY', 'USER', 'STUDENT'].includes(role)) {
       return 'USER';
     }
 
-    if (['LUCY_PRO', 'MENTOR', 'TEACHER'].includes(role)) {
+    if (['2', 'LUCY_PRO', 'MENTOR', 'TEACHER'].includes(role)) {
       return 'MENTOR';
     }
 
-    if (['LUCY_SUPER', 'CREATOR', 'SUPER'].includes(role)) {
+    if (['3', '4', 'LUCY_SUPER', 'CREATOR', 'SUPER', 'ADMIN'].includes(role)) {
       return 'CREATOR';
     }
 
