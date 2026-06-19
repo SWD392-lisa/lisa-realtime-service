@@ -126,16 +126,19 @@ export class AuthService {
   normalizeRole(rawRole: string): AuthRole {
     const role = rawRole.trim().toUpperCase();
 
-    // User Service currently emits numeric RoleId values in JWTs.
+    // Mapping từ DB neondb (lisa-user-payment-service):
+    // role_id=1  LUCY  → USER
+    // role_id=2  PRO   → MENTOR
+    // role_id=3  SUPER → CREATOR (quyền cao nhất)
     if (['1', 'LUCY', 'USER', 'STUDENT'].includes(role)) {
       return 'USER';
     }
 
-    if (['2', 'LUCY_PRO', 'MENTOR', 'TEACHER'].includes(role)) {
+    if (['2', 'PRO', 'LUCY_PRO', 'MENTOR', 'TEACHER'].includes(role)) {
       return 'MENTOR';
     }
 
-    if (['3', '4', 'LUCY_SUPER', 'CREATOR', 'SUPER', 'ADMIN'].includes(role)) {
+    if (['3', 'SUPER', 'LUCY_SUPER', 'CREATOR'].includes(role)) {
       return 'CREATOR';
     }
 
