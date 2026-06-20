@@ -138,7 +138,7 @@ export class AuthService {
       return 'MENTOR';
     }
 
-    if (['3', 'SUPER', 'LUCY_SUPER', 'CREATOR'].includes(role)) {
+    if (['3', '4', 'SUPER', 'LUCY_SUPER', 'CREATOR'].includes(role)) {
       return 'CREATOR';
     }
 

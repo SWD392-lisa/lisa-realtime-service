@@ -111,7 +111,7 @@ export class RoomGateway
         isAnonymous: data?.isAnonymous ?? true,
       });
       const state = {
-        roomId: result.room.id,
+        roomId: result.room.roomId,
         userId: result.participant.userId,
       };
 

@@ -30,11 +30,20 @@ export class SessionStoreService {
   join(payload: SessionJoinPayload, socketId: string): SessionSnapshot {
     const session = this.sessions.get(payload.sessionId) ?? {
       sessionId: payload.sessionId,
+      lmsSessionId: payload.lmsSessionId,
+      externalSessionId: payload.externalSessionId,
       participants: [],
       handRaiseQueue: [],
       activeSpeakerIds: [],
       recordingStatus: 'IDLE' as const,
     };
+
+    if (payload.lmsSessionId) {
+      session.lmsSessionId = payload.lmsSessionId;
+    }
+    if (payload.externalSessionId) {
+      session.externalSessionId = payload.externalSessionId;
+    }
 
     const existingParticipantIndex = session.participants.findIndex(
       (participant) => participant.anonymousUserId === payload.anonymousUserId,
@@ -301,6 +310,8 @@ export class SessionStoreService {
   private toSnapshot(session: RealtimeSession): SessionSnapshot {
     return {
       sessionId: session.sessionId,
+      lmsSessionId: session.lmsSessionId,
+      externalSessionId: session.externalSessionId,
       participants: session.participants.map((participant) => ({
         anonymousUserId: participant.anonymousUserId,
         displayName: participant.displayName,

@@ -1,7 +1,11 @@
 // @ts-nocheck
 import { BadRequestException } from '@nestjs/common';
-import { RoomParticipantRole, RoomStatus } from '@prisma/client';
+import { RoomStatus } from '@prisma/client';
 import type { AuthRole } from '../../../auth/auth.types';
+
+export const ROOM_PARTICIPANT_ROLES = ['HOST', 'MENTOR', 'LEARNER'] as const;
+export type RoomParticipantRole =
+  (typeof ROOM_PARTICIPANT_ROLES)[number];
 
 export interface CreateRoomDto {
   name: string;
@@ -33,14 +37,14 @@ export function mapAuthRoleToParticipantRole(
   role: AuthRole,
 ): RoomParticipantRole {
   if (role === 'MENTOR') {
-    return RoomParticipantRole.MENTOR;
+    return 'MENTOR';
   }
 
   if (role === 'CREATOR') {
-    return RoomParticipantRole.HOST;
+    return 'HOST';
   }
 
-  return RoomParticipantRole.LEARNER;
+  return 'LEARNER';
 }
 
 export function parseRoomStatus(value?: string): RoomStatus | undefined {
@@ -58,13 +62,11 @@ export function parseRoomStatus(value?: string): RoomStatus | undefined {
 
 export function parseParticipantRole(value?: string): RoomParticipantRole {
   if (!value) {
-    return RoomParticipantRole.LEARNER;
+    return 'LEARNER';
   }
 
   const role = value.toUpperCase();
-  if (
-    !Object.values(RoomParticipantRole).includes(role as RoomParticipantRole)
-  ) {
+  if (!ROOM_PARTICIPANT_ROLES.includes(role as RoomParticipantRole)) {
     throw new BadRequestException('Invalid participant role');
   }
 

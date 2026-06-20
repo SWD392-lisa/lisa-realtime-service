@@ -14,6 +14,8 @@ export interface SessionParticipant {
 
 export interface RealtimeSession {
   sessionId: string;
+  lmsSessionId?: string;
+  externalSessionId?: string;
   participants: SessionParticipant[];
   handRaiseQueue: string[];
   activeSpeakerIds: string[];
@@ -22,6 +24,8 @@ export interface RealtimeSession {
 
 export interface SessionSnapshot {
   sessionId: string;
+  lmsSessionId?: string;
+  externalSessionId?: string;
   participants: Array<
     Omit<SessionParticipant, 'socketId'> & { isActiveSpeaker: boolean }
   >;
@@ -33,9 +37,11 @@ export interface SessionSnapshot {
 
 export interface SessionJoinPayload {
   sessionId: string;
-  anonymousUserId: string;
+  anonymousUserId?: string;
   displayName: string;
-  role: SessionRole;
+  role?: SessionRole;
+  lmsSessionId?: string;
+  externalSessionId?: string;
 }
 
 export interface SessionLeavePayload {

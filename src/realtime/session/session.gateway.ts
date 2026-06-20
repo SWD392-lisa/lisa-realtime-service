@@ -10,6 +10,8 @@ import {
 import { ForbiddenException as HttpForbiddenException } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { AccessControlService } from '../../access-control/access-control.service';
+import { AuthService } from '../../auth/auth.service';
+import type { AuthUser } from '../../auth/auth.types';
 import { SessionStoreService } from './session-store.service';
 import { SessionPersistenceService } from './session-persistence.service';
 import type {
@@ -33,6 +35,7 @@ export class SessionGateway implements OnGatewayDisconnect {
 
   constructor(
     private readonly accessControlService: AccessControlService,
+    private readonly authService: AuthService,
     private readonly sessionStore: SessionStoreService,
     private readonly sessionPersistenceService: SessionPersistenceService,
   ) {}
@@ -81,12 +84,12 @@ export class SessionGateway implements OnGatewayDisconnect {
   ) {
     try {
       this.assertJoinPayload(payload);
-      const identity = this.accessControlService.assertCanJoinSession(
-        payload.anonymousUserId,
-        payload.role,
-      );
+      const user = this.requireSocketUser(client);
+      const identity = this.accessControlService.assertCanJoinSession(user);
       const nextPayload = {
         ...payload,
+        anonymousUserId: user.userId,
+        displayName: user.displayName?.trim() || payload.displayName,
         role: identity.role,
       };
       await this.sessionPersistenceService.ensureLiveSession(
@@ -336,15 +339,31 @@ export class SessionGateway implements OnGatewayDisconnect {
     if (!payload.sessionId?.trim()) {
       throw new WsException('sessionId is required');
     }
-    if (!payload.anonymousUserId?.trim()) {
-      throw new WsException('anonymousUserId is required');
-    }
     if (!payload.displayName?.trim()) {
       throw new WsException('displayName is required');
     }
-    if (!['SUPER', 'HOST', 'STUDENT'].includes(payload.role)) {
-      throw new WsException('role must be SUPER, HOST, or STUDENT');
+  }
+
+  private requireSocketUser(client: Socket): AuthUser {
+    const headerToken = this.authService.extractBearerToken(
+      client.handshake.headers.authorization,
+    );
+    const handshakeToken = this.readHandshakeToken(client);
+    const token = headerToken || handshakeToken;
+    if (!token) {
+      throw new WsException('Access token is required for session.join');
     }
+
+    return this.authService.verifyAccessToken(token);
+  }
+
+  private readHandshakeToken(client: Socket): string | undefined {
+    const token = client.handshake.auth?.token;
+    if (typeof token !== 'string' || token.trim().length === 0) {
+      return undefined;
+    }
+
+    return token.trim();
   }
 
   private queueFromSnapshot(snapshot: {

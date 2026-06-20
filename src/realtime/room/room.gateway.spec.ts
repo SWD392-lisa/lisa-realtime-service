@@ -1,8 +1,8 @@
 // @ts-nocheck
 import { Test, TestingModule } from '@nestjs/testing';
-import { RoomParticipantRole } from '@prisma/client';
 import { AuthService } from '../../auth/auth.service';
 import { AgoraService } from '../agora/agora.service';
+import { ROOM_PARTICIPANT_ROLES } from './dto/room.dto';
 import { RoomGateway } from './room.gateway';
 import { RoomService } from './room.service';
 
@@ -96,7 +96,7 @@ describe.skip('RoomGateway', () => {
         userId: 'jwt-user-1',
         displayName: 'Learner One',
         rawRole: 'LUCY',
-        role: RoomParticipantRole.LEARNER,
+        role: ROOM_PARTICIPANT_ROLES[2],
       }),
     );
   });

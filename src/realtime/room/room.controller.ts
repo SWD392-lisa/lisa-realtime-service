@@ -8,14 +8,18 @@ import {
   Patch,
   Post,
   Query,
+  ServiceUnavailableException,
   UseGuards,
 } from '@nestjs/common';
-import { RoomParticipantRole } from '@prisma/client';
 import { CurrentUser } from '../../auth/current-user.decorator';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 import type { AuthUser } from '../../auth/auth.types';
 import { AgoraService } from '../agora/agora.service';
-import { mapAuthRoleToParticipantRole, parseRoomStatus } from './dto/room.dto';
+import {
+  mapAuthRoleToParticipantRole,
+  parseRoomStatus,
+  type RoomParticipantRole,
+} from './dto/room.dto';
 import type { CreateRoomDto } from './dto/room.dto';
 import { RoomService } from './room.service';
 
@@ -64,11 +68,7 @@ export class RoomController {
 
     return {
       ...result,
-      agora: this.agoraService.createRtcToken({
-        channelName: result.room.agoraChannelName,
-        uid: result.participant.agoraUid,
-        role: this.getAgoraRole(result.participant.role),
-      }),
+      agora: this.createAgoraOrThrowServiceUnavailable(result),
     };
   }
 
@@ -110,6 +110,27 @@ export class RoomController {
   }
 
   private getAgoraRole(role: RoomParticipantRole): 'publisher' | 'subscriber' {
-    return role === RoomParticipantRole.LEARNER ? 'subscriber' : 'publisher';
+    return role === 'LEARNER' ? 'subscriber' : 'publisher';
+  }
+
+  private createAgoraOrThrowServiceUnavailable(result: {
+    room: { agoraChannelName: string };
+    participant: { agoraUid: string; role: RoomParticipantRole };
+  }) {
+    try {
+      return this.agoraService.createRtcToken({
+        channelName: result.room.agoraChannelName,
+        uid: result.participant.agoraUid,
+        role: this.getAgoraRole(result.participant.role),
+      });
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message.includes('Agora credentials are not configured')
+      ) {
+        throw new ServiceUnavailableException(error.message);
+      }
+      throw error;
+    }
   }
 }
