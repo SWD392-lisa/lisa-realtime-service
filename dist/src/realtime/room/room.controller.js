@@ -14,7 +14,6 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RoomController = void 0;
 const common_1 = require("@nestjs/common");
-const client_1 = require("@prisma/client");
 const current_user_decorator_1 = require("../../auth/current-user.decorator");
 const jwt_auth_guard_1 = require("../../auth/jwt-auth.guard");
 const agora_service_1 = require("../agora/agora.service");
@@ -46,11 +45,7 @@ let RoomController = class RoomController {
         });
         return {
             ...result,
-            agora: this.agoraService.createRtcToken({
-                channelName: result.room.agoraChannelName,
-                uid: result.participant.agoraUid,
-                role: this.getAgoraRole(result.participant.role),
-            }),
+            agora: this.createAgoraOrThrowServiceUnavailable(result),
         };
     }
     listRooms(status) {
@@ -75,7 +70,23 @@ let RoomController = class RoomController {
         }
     }
     getAgoraRole(role) {
-        return role === client_1.RoomParticipantRole.LEARNER ? 'subscriber' : 'publisher';
+        return role === 'LEARNER' ? 'subscriber' : 'publisher';
+    }
+    createAgoraOrThrowServiceUnavailable(result) {
+        try {
+            return this.agoraService.createRtcToken({
+                channelName: result.room.agoraChannelName,
+                uid: result.participant.agoraUid,
+                role: this.getAgoraRole(result.participant.role),
+            });
+        }
+        catch (error) {
+            if (error instanceof Error &&
+                error.message.includes('Agora credentials are not configured')) {
+                throw new common_1.ServiceUnavailableException(error.message);
+            }
+            throw error;
+        }
     }
 };
 exports.RoomController = RoomController;

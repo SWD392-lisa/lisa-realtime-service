@@ -1,5 +1,7 @@
-import { RoomParticipantRole, RoomStatus } from '@prisma/client';
+import { RoomStatus } from '@prisma/client';
 import type { AuthRole } from '../../../auth/auth.types';
+export declare const ROOM_PARTICIPANT_ROLES: readonly ["HOST", "MENTOR", "LEARNER"];
+export type RoomParticipantRole = (typeof ROOM_PARTICIPANT_ROLES)[number];
 export interface CreateRoomDto {
     name: string;
     description?: string;

@@ -79,7 +79,7 @@ let RoomGateway = class RoomGateway {
                 isAnonymous: data?.isAnonymous ?? true,
             });
             const state = {
-                roomId: result.room.id,
+                roomId: result.room.roomId,
                 userId: result.participant.userId,
             };
             this.clientState.set(client.id, state);

@@ -30,37 +30,15 @@ export declare class RoomGateway implements OnGatewayInit, OnGatewayConnection, 
     handleDisconnect(client: AuthenticatedSocket): Promise<void>;
     handleJoinRoom(data: JoinRoomPayload, client: AuthenticatedSocket): Promise<{
         success: boolean;
-        room: {
-            roomId: string;
-            externalCourseId: string | null;
-            externalLevelId: string | null;
-            externalSubLevelId: string | null;
-            status: import("@prisma/client").$Enums.RoomStatus;
-            title: string;
-            createdAt: Date;
-            updatedAt: Date;
-            hostAnonymousId: string;
-            defaultChannelName: string;
-        };
-        participant: any;
+        room: import("./room.service").RoomView;
+        participant: RoomParticipantView;
         participants: RoomParticipantView[];
         agora: import("../agora/agora.service").AgoraTokenResult;
     }>;
     handleJoinRoomAlias(data: JoinRoomPayload, client: AuthenticatedSocket): Promise<{
         success: boolean;
-        room: {
-            roomId: string;
-            externalCourseId: string | null;
-            externalLevelId: string | null;
-            externalSubLevelId: string | null;
-            status: import("@prisma/client").$Enums.RoomStatus;
-            title: string;
-            createdAt: Date;
-            updatedAt: Date;
-            hostAnonymousId: string;
-            defaultChannelName: string;
-        };
-        participant: any;
+        room: import("./room.service").RoomView;
+        participant: RoomParticipantView;
         participants: RoomParticipantView[];
         agora: import("../agora/agora.service").AgoraTokenResult;
     }>;
@@ -80,109 +58,87 @@ export declare class RoomGateway implements OnGatewayInit, OnGatewayConnection, 
     }>;
     handleRaiseHand(client: AuthenticatedSocket): Promise<{
         success: boolean;
-        participant: RoomParticipant;
+        participant: RoomParticipantView;
         participants: RoomParticipantView[];
     }>;
     handleRaiseHandAlias(client: AuthenticatedSocket): Promise<{
         success: boolean;
-        participant: RoomParticipant;
+        participant: RoomParticipantView;
         participants: RoomParticipantView[];
     }>;
     handleLowerHand(client: AuthenticatedSocket): Promise<{
         success: boolean;
-        participant: RoomParticipant;
+        participant: RoomParticipantView;
         participants: RoomParticipantView[];
     }>;
     handleLowerHandAlias(client: AuthenticatedSocket): Promise<{
         success: boolean;
-        participant: RoomParticipant;
+        participant: RoomParticipantView;
         participants: RoomParticipantView[];
     }>;
     handleToggleMic(data: {
         isMicOn: boolean;
     }, client: AuthenticatedSocket): Promise<{
         success: boolean;
-        participant: RoomParticipant;
+        participant: RoomParticipantView;
         participants: RoomParticipantView[];
     }>;
     handleMuteMic(data: Partial<TargetUserPayload>, client: AuthenticatedSocket): Promise<{
         success: boolean;
-        participant: RoomParticipant;
+        participant: RoomParticipantView;
         participants: RoomParticipantView[];
     }>;
     handleMuteUserAlias(data: Partial<TargetUserPayload>, client: AuthenticatedSocket): Promise<{
         success: boolean;
-        participant: RoomParticipant;
+        participant: RoomParticipantView;
         participants: RoomParticipantView[];
     }>;
     handleUnmuteMic(data: Partial<TargetUserPayload>, client: AuthenticatedSocket): Promise<{
         success: boolean;
-        participant: RoomParticipant;
+        participant: RoomParticipantView;
         participants: RoomParticipantView[];
     }>;
     handleUnmuteUserAlias(data: Partial<TargetUserPayload>, client: AuthenticatedSocket): Promise<{
         success: boolean;
-        participant: RoomParticipant;
+        participant: RoomParticipantView;
         participants: RoomParticipantView[];
     }>;
     handleApproveSpeaker(data: TargetUserPayload, client: AuthenticatedSocket): Promise<{
         success: boolean;
-        participant: RoomParticipant;
+        participant: RoomParticipantView;
         participants: RoomParticipantView[];
     }>;
     handleApproveSpeakerAlias(data: TargetUserPayload, client: AuthenticatedSocket): Promise<{
         success: boolean;
-        participant: RoomParticipant;
+        participant: RoomParticipantView;
         participants: RoomParticipantView[];
     }>;
     handleRemoveSpeaker(data: TargetUserPayload, client: AuthenticatedSocket): Promise<{
         success: boolean;
-        participant: RoomParticipant;
+        participant: RoomParticipantView;
         participants: RoomParticipantView[];
     }>;
     handleRemoveSpeakerAlias(data: TargetUserPayload, client: AuthenticatedSocket): Promise<{
         success: boolean;
-        participant: RoomParticipant;
+        participant: RoomParticipantView;
         participants: RoomParticipantView[];
     }>;
     handleEndRoom(client: AuthenticatedSocket): Promise<{
         success: boolean;
-        room: {
-            roomId: string;
-            externalCourseId: string | null;
-            externalLevelId: string | null;
-            externalSubLevelId: string | null;
-            status: import("@prisma/client").$Enums.RoomStatus;
-            title: string;
-            createdAt: Date;
-            updatedAt: Date;
-            hostAnonymousId: string;
-            defaultChannelName: string;
-        };
+        room: import("./room.service").RoomView;
     }>;
     handleEndRoomAlias(client: AuthenticatedSocket): Promise<{
         success: boolean;
-        room: {
-            roomId: string;
-            externalCourseId: string | null;
-            externalLevelId: string | null;
-            externalSubLevelId: string | null;
-            status: import("@prisma/client").$Enums.RoomStatus;
-            title: string;
-            createdAt: Date;
-            updatedAt: Date;
-            hostAnonymousId: string;
-            defaultChannelName: string;
-        };
+        room: import("./room.service").RoomView;
     }>;
     handleEnableVideo(client: AuthenticatedSocket): Promise<{
         success: boolean;
-        participant: RoomParticipant;
+        participant: RoomParticipantView;
         participants: RoomParticipantView[];
     }>;
     handleDisableVideo(client: AuthenticatedSocket): Promise<{
         success: boolean;
-        participant: RoomParticipant;
+        participant: RoomParticipantView;
         participants: RoomParticipantView[];
     }>;
     handleRemoveUser(data: TargetUserPayload, client: AuthenticatedSocket): Promise<{

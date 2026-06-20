@@ -99,7 +99,7 @@ let AuthService = class AuthService {
         if (['2', 'PRO', 'LUCY_PRO', 'MENTOR', 'TEACHER'].includes(role)) {
             return 'MENTOR';
         }
-        if (['3', 'SUPER', 'LUCY_SUPER', 'CREATOR'].includes(role)) {
+        if (['3', '4', 'SUPER', 'LUCY_SUPER', 'CREATOR'].includes(role)) {
             return 'CREATOR';
         }
         throw new common_1.ForbiddenException('Invalid role');

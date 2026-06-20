@@ -44,6 +44,11 @@ export interface SessionJoinPayload {
   externalSessionId?: string;
 }
 
+export interface ResolvedSessionJoinPayload extends SessionJoinPayload {
+  anonymousUserId: string;
+  role: SessionRole;
+}
+
 export interface SessionLeavePayload {
   sessionId: string;
 }

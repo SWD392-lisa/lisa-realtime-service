@@ -18,6 +18,7 @@ import type {
   HandRaisePayload,
   MediaStatusPayload,
   RecordingStatusPayload,
+  ResolvedSessionJoinPayload,
   ScreenSharePayload,
   SessionJoinPayload,
   SessionLeavePayload,
@@ -86,7 +87,7 @@ export class SessionGateway implements OnGatewayDisconnect {
       this.assertJoinPayload(payload);
       const user = this.requireSocketUser(client);
       const identity = this.accessControlService.assertCanJoinSession(user);
-      const nextPayload = {
+      const nextPayload: ResolvedSessionJoinPayload = {
         ...payload,
         anonymousUserId: user.userId,
         displayName: user.displayName?.trim() || payload.displayName,

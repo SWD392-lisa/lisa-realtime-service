@@ -11,6 +11,7 @@ import type {
   RealtimeSession,
   RecordingStatusChangedEvent,
   RecordingStatusPayload,
+  ResolvedSessionJoinPayload,
   ScreenShareChangedEvent,
   SessionJoinPayload,
   SessionLeavePayload,
@@ -27,7 +28,7 @@ export class SessionStoreService {
     { sessionId: string; anonymousUserId: string }
   >();
 
-  join(payload: SessionJoinPayload, socketId: string): SessionSnapshot {
+  join(payload: ResolvedSessionJoinPayload, socketId: string): SessionSnapshot {
     const session = this.sessions.get(payload.sessionId) ?? {
       sessionId: payload.sessionId,
       lmsSessionId: payload.lmsSessionId,

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ROOM_PARTICIPANT_ROLES = void 0;
 exports.mapAuthRoleToParticipantRole = mapAuthRoleToParticipantRole;
 exports.parseRoomStatus = parseRoomStatus;
 exports.parseParticipantRole = parseParticipantRole;
@@ -7,14 +8,15 @@ exports.assertNonEmptyString = assertNonEmptyString;
 exports.optionalTrimmedString = optionalTrimmedString;
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
+exports.ROOM_PARTICIPANT_ROLES = ['HOST', 'MENTOR', 'LEARNER'];
 function mapAuthRoleToParticipantRole(role) {
     if (role === 'MENTOR') {
-        return client_1.RoomParticipantRole.MENTOR;
+        return 'MENTOR';
     }
     if (role === 'CREATOR') {
-        return client_1.RoomParticipantRole.HOST;
+        return 'HOST';
     }
-    return client_1.RoomParticipantRole.LEARNER;
+    return 'LEARNER';
 }
 function parseRoomStatus(value) {
     if (!value) {
@@ -28,10 +30,10 @@ function parseRoomStatus(value) {
 }
 function parseParticipantRole(value) {
     if (!value) {
-        return client_1.RoomParticipantRole.LEARNER;
+        return 'LEARNER';
     }
     const role = value.toUpperCase();
-    if (!Object.values(client_1.RoomParticipantRole).includes(role)) {
+    if (!exports.ROOM_PARTICIPANT_ROLES.includes(role)) {
         throw new common_1.BadRequestException('Invalid participant role');
     }
     return role;

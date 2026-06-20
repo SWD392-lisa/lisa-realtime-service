@@ -7,6 +7,7 @@ import {
 import { PrismaService } from '../../prisma/prisma.service';
 import type {
   RecordingStatusPayload,
+  ResolvedSessionJoinPayload,
   SessionJoinPayload,
   SessionSnapshot,
   SpeakerApprovePayload,
@@ -17,7 +18,7 @@ export class SessionPersistenceService {
   constructor(private readonly prisma: PrismaService) {}
 
   async ensureLiveSession(
-    payload: SessionJoinPayload,
+    payload: ResolvedSessionJoinPayload,
     roleInSession: RoleInSession,
   ) {
     const roomId = this.roomIdForSession(payload.sessionId);
@@ -80,7 +81,7 @@ export class SessionPersistenceService {
   }
 
   async markParticipantJoined(
-    payload: SessionJoinPayload,
+    payload: ResolvedSessionJoinPayload,
     roleInSession: RoleInSession,
     snapshot: SessionSnapshot,
   ) {
