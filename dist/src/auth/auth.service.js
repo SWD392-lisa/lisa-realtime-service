@@ -93,13 +93,13 @@ let AuthService = class AuthService {
     }
     normalizeRole(rawRole) {
         const role = rawRole.trim().toUpperCase();
-        if (['LUCY', 'USER', 'STUDENT'].includes(role)) {
+        if (['1', 'LUCY', 'USER', 'STUDENT'].includes(role)) {
             return 'USER';
         }
-        if (['LUCY_PRO', 'MENTOR', 'TEACHER'].includes(role)) {
+        if (['2', 'PRO', 'LUCY_PRO', 'MENTOR', 'TEACHER'].includes(role)) {
             return 'MENTOR';
         }
-        if (['LUCY_SUPER', 'CREATOR', 'SUPER'].includes(role)) {
+        if (['3', 'SUPER', 'LUCY_SUPER', 'CREATOR'].includes(role)) {
             return 'CREATOR';
         }
         throw new common_1.ForbiddenException('Invalid role');
